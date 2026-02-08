@@ -1,0 +1,146 @@
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+@import url("https://unpkg.com/normalize.css") layer(normalize);
+@layer normalize, base, components, text-effect, snap, responsive;
+
+/* ---------- BASE (DARK THEME) ---------- */
+@layer base {
+  html, body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    scroll-snap-type: y proximity;
+    scroll-behavior: smooth;
+    background: #0b0b0b;
+    color: #ffffff;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Geist", system-ui, sans-serif;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+
+    --dot-color: rgba(255, 255, 255, 0.08);
+    --spacing: 24px;
+    --dot-size: 1.5px;
+
+    background-image: radial-gradient(
+      var(--dot-color) var(--dot-size),
+      transparent var(--dot-size)
+    );
+    background-size: var(--spacing) var(--spacing);
+    background-repeat: repeat;
+
+    mask-image: radial-gradient(circle at top left, #000 0%, transparent 75%);
+  }
+}
+
+/* ---------- COMPONENTS ---------- */
+@layer components {
+  .no-offset { margin: 0; }
+
+  .container {
+    width: 100%;
+    max-width: 1024px;
+    padding: 0 16px;
+    margin: 0 auto;
+  }
+
+  .hero {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .hero-text {
+    font-size: clamp(4rem, 8vw, 8rem);
+    font-weight: 800;
+  }
+
+  .hero-description {
+    font-size: clamp(1rem, 3vw, 2rem);
+    margin-top: 16px;
+    opacity: 0.75;
+  }
+
+  .list-container {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 48px;
+    padding: 120px 0;
+  }
+
+  .list-text {
+    font-size: clamp(2.5rem, 6vw, 6rem);
+    font-weight: 600;
+    position: sticky;
+    top: calc(50% - 0.5lh);
+    align-self: flex-start;
+    min-width: max-content;
+  }
+
+  .list {
+    font-size: clamp(2.5rem, 6vw, 6rem);
+    font-weight: 600;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .list li {
+    line-height: 1.25;
+  }
+}
+
+/* ---------- TEXT EFFECT (SMOOTHED) ---------- */
+@layer text-effect {
+  :root {
+    --count: 12;
+    --end: 360;
+    --step: calc(var(--end) / var(--count));
+  }
+
+  .list li:not(:last-of-type) {
+    color: oklch(65% 0.3 calc(var(--i) * var(--step)));
+  }
+
+  @supports (animation-timeline: scroll()) {
+    .list li {
+      opacity: 0.25;
+      animation: brighten linear both;
+      animation-timeline: view();
+      animation-range: cover 40% 60%;
+    }
+
+    @keyframes brighten {
+      0% { opacity: 0.25; }
+      50% { opacity: 1; }
+      100% { opacity: 0.25; }
+    }
+  }
+}
+
+/* ---------- SNAP (FIXED — NO JITTER) ---------- */
+@layer snap {
+  section {
+    scroll-snap-align: center;
+  }
+}
+
+/* ---------- RESPONSIVE ---------- */
+@layer responsive {
+  @media (max-width: 600px) {
+    .list-container {
+      column-gap: 12px;
+    }
+  }
+}
+    

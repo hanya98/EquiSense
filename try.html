@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EquiSense</title>
+
+<script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/CustomEase.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050505;color:white;font-family:system-ui,sans-serif;overflow-x:hidden}
+
+.fixed-bg{
+position:fixed;inset:0;z-index:-1;
+background:linear-gradient(rgba(0,0,0,.8),rgba(0,0,0,.8)),url('bg.png');
+background-size:cover;background-position:center;opacity:.4
+}
+
+
+.nav-wrap{position:fixed;top:18px;width:100%;display:flex;justify-content:center;z-index:100}
+.nav-bar{
+width:92%;height:72px;padding:0 36px;display:flex;align-items:center;
+border-radius:22px;background:rgba(255,255,255,.03);
+backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1)
+}
+.logo{font-size:1.8rem;font-weight:900;color:#4ade80}
+
+.hero{height:100vh;position:relative;display:flex;align-items:center;overflow:hidden}
+.hero-text{position:absolute;left:8%;max-width:500px;z-index:10;pointer-events:none}
+.hero-text h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:900;line-height:1.05}
+.hero-text p{margin-top:20px;font-size:1.1rem;color:#a1a1aa}
+#canvas-globe{position:absolute;inset:0;z-index:2}
+.globe-glow{
+position:absolute;top:50%;left:72%;transform:translate(-50%,-50%);
+width:600px;height:600px;
+background:radial-gradient(circle,rgba(34,197,94,.15),transparent 70%);
+z-index:1
+}
+
+.scroll-section{height:200vh;position:relative}
+.expand-wrapper{position:sticky;top:0;height:100vh;display:flex;align-items:center;justify-content:center;text-align:center}
+.main-text{font-size:clamp(1.8rem,4vw,3.8rem);font-weight:700; line-height: 1.4;}
+.img-box{
+display:inline-block;height:65px;width:10px;margin:0 10px;
+overflow:hidden;border-radius:8px;vertical-align: middle;
+will-change: width;background: #111;
+}
+.img-box img{width:300px;height:100%;object-fit:cover}
+
+.sticky-wrap{position:relative;width:100%}
+.sticky-element{position:relative;width:100vw;height:100vh;overflow:hidden;background:rgba(0,0,0,.6)}
+canvas.outline-layer,canvas.fill-layer{position:absolute;inset:0;pointer-events:none}
+canvas.outline-layer{z-index:15}
+canvas.fill-layer{z-index:40}
+.cards{
+position:absolute;top:0;left:0;width:300%;height:100vh;
+display:flex;justify-content:space-around;align-items:center;z-index:30
+}
+.card {
+    width: 14%; height: 65%; background: rgba(10, 10, 10, 0.9);
+    padding: 2rem; border-radius: 16px; display: flex;
+    flex-direction: column; justify-content: space-between;
+}
+.card:nth-child(odd) { border: 1px solid rgba(74, 222, 128, 0.5); box-shadow: 0 0 25px rgba(74, 222, 128, 0.2); }
+.card:nth-child(even) { border: 1px solid rgba(239, 68, 68, 0.5); box-shadow: 0 0 25px rgba(239, 68, 68, 0.2); }
+.card-img{height:75%;overflow:hidden}
+.card-img img{width:100%;height:100%;object-fit:cover}
+.card h3{margin-top:15px;font-size:1.5rem;letter-spacing:2px;color:#4ade80}
+
+/* SECTION 4: REVEAL */
+.outro-wrapper { position: relative; width: 100%; height: 100vh; overflow: hidden; background: #000; }
+#reveal-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+#eraser-canvas { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; }
+.outro-text {
+    position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; 
+    z-index: 3; font-size: 5vw; font-weight: 900; pointer-events: none; mix-blend-mode: difference;
+}
+.outro-text span { color:#4ade80; margin-left: 20px; }
+
+.noir-slider-section { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #050505; }
+.noir-slider { position: absolute; top: 15vh; width: 100vw; height: 100vh; perspective: 1000px; }
+.noir-card {
+    position: absolute; top: 50%; left: 50%; width: 45%; height: 500px; border-radius: 20px;
+    transform: translate3d(-50%,-50%,0); overflow: hidden; background: #000;
+    border: 2px solid rgba(74, 222, 128, 0.4); box-shadow: 0 0 40px rgba(74, 222, 128, 0.15);
+}
+.noir-card:nth-child(even) { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 40px rgba(239, 68, 68, 0.15); }
+.noir-card:nth-child(even) h2 { 
+    color: #ef4444; 
+    text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+.noir-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; }
+.noir-copy { 
+    position: absolute; 
+    top: 25%;
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    width: 85%; 
+    text-align: center; 
+}
+
+.noir-copy h2 { 
+    font-size: 1.55rem; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    color: #4ade80; 
+    letter-spacing: 2px; 
+    line-height: 1.2;
+    text-shadow: 0 0 15px rgba(74, 222, 128, 0.3);}
+.section-heading{ position:absolute; left:50%; transform:translateX(-50%); text-align:center; z-index:60; pointer-events:none; }
+.section-heading h2{ font-size:clamp(2rem,4vw,3.5rem); font-weight:900; }
+.section-heading p{ margin-top:10px; font-size:1rem; color:#a1a1aa; }
+.features-bg-title{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:18vw; font-weight:900; letter-spacing:12px; color:rgba(255,255,255,0.04); z-index:1; pointer-events:none; text-transform:uppercase; }
+
+.flip-grid-section { position: relative; width: 100vw; height: 100vh; background: #000; padding: 100px 20px 20px; display: flex; flex-direction: column; }
+.flip-grid-section h2 { text-align: center; font-size: 3rem; margin-bottom: 20px; color: #4ade80; text-transform: uppercase; font-weight: 900; }
+.board { flex: 1; display: flex; flex-direction: column; gap: 0.5em; perspective: 1000px; }
+.row { flex: 1; display: flex; gap: 0.5em; }
+.tile { flex: 1; position: relative; transform-style: preserve-3d; cursor: pointer; }
+.tile-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900;font-size:.7rem }
+.tile-front { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(74, 222, 128, 0.4); color: #4ade80; }
+.tile-back { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); color: #ef4444; transform: rotateX(180deg); }
+
+..kinetic-section {
+  background: #000;
+  padding: 15vh 0; /* Space for scrolling */
+}
+
+.kinetic-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 0.8fr 2fr; /* Ratio for better spacing */
+  column-gap: 30px;
+  padding: 0 5%;
+}
+
+.kinetic-static {
+  /* Font chota kiya 2rem se 5rem tak  */
+  font-size: clamp(2rem, 5vw, 4.5rem); 
+  font-weight: 900;
+  position: sticky;
+  top: 55%; /* Center se thoda neeche shift kiya */
+  align-self: flex-start;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.kinetic-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.kinetic-list li {
+  font-size: clamp(2rem, 5vw, 4.5rem); 
+  font-weight: 700;
+  line-height: 1.3;
+  text-transform: lowercase;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+  
+  --step: calc(360 / 12); 
+  color: oklch(75% 0.25 calc(var(--i) * var(--step)));
+}
+
+@supports (animation-timeline: view()) {
+  .kinetic-list li {
+    animation: kinetic-glow linear both;
+    animation-timeline: view();
+    animation-range: cover calc(55% - 1lh) calc(55% + 1lh);
+  }
+
+  @keyframes kinetic-glow {
+    0% { opacity: 0.15; transform: scale(0.95); }
+    50% { 
+        opacity: 1; 
+        transform: scale(1.05); 
+        filter: drop-shadow(0 0 20px currentColor);
+    }
+    100% { opacity: 0.15; transform: scale(0.95); }
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="fixed-bg"></div>
+
+<header class="nav-wrap">
+    <div class="nav-bar"><div class="logo">EquiSense</div></div>
+</header>
+
+<section class="hero">
+    <div class="hero-text">
+        <h1>Market Noise,<br>Made Actionable</h1>
+        <p>Advanced AI-driven sentiment analysis to help you navigate complex market signals with ease.</p>
+    </div>
+    <div class="globe-glow"></div>
+    <canvas id="canvas-globe"></canvas>
+</section>
+
+<section class="scroll-section">
+    <div class="expand-wrapper">
+        <h1 class="main-text">
+            EquiSense AI <span class="img-box"><img src="photoone.png"></span> aggregates massive <br>
+            streams of real-time <span class="img-box"><img src="phototwo.png"></span> data,<br>
+            decodes complex <span class="img-box"><img src="photothree.png"></span> human sentiment,<br>
+            and delivers <span class="img-box"><img src="photofour.png"></span> unparalleled financial clarity.
+        </h1>
+    </div>
+</section>
+
+<div class="sticky-wrap">
+    <section class="sticky-element">
+        <div class="section-heading">
+            <h2>How it works</h2>
+            <p>From raw market noise to actionable intelligence</p>
+        </div>
+        <canvas class="outline-layer"></canvas>
+        <div class="cards">
+            <div class="card"><div class="card-img"><img src="card1.png"></div><h3>SENTIMENT</h3></div>
+            <div class="card"><div class="card-img"><img src="card2.png"></div><h3>ANALYTICS</h3></div>
+            <div class="card"><div class="card-img"><img src="card3.png"></div><h3>INSIGHTS</h3></div>
+        </div>
+        <canvas class="fill-layer"></canvas>
+    </section>
+</div>
+
+<section class="outro-wrapper">
+    <video id="reveal-video" autoplay muted loop playsinline><source src="vidbgg.mp4" type="video/mp4"></video>
+    <canvas id="eraser-canvas"></canvas>
+    <div class="outro-text">No noise. <span>Just insight.</span></div>
+</section>
+
+<section class="noir-slider-section">
+    <div class="features-bg-title">FEATURES</div>
+    <div class="noir-slider">
+        <div class="noir-card"><div class="noir-copy"><h2>Multi-source real-time market sentiment engine</h2></div></div>
+        <div class="noir-card"><div class="noir-copy"><h2>Fear–Greed analytics with Sentiment Reliability Index (SRI) </h2></div></div>
+        <div class="noir-card"><div class="noir-copy"><h2>Market regime detection and smart-money divergence alerts</h2></div></div>
+        <div class="noir-card"><div class="noir-copy"><h2>Explainable AI insights</h2></div></div>
+        <div class="noir-card"><div class="noir-copy"><h2>Rule based signal generation system</h2></div></div>
+        <div class="noir-card"><div class="noir-copy"><h2>Institutional style research dashboard</h2></div></div>
+    </div>
+</section>
+
+<section class="kinetic-section">
+  <div class="kinetic-container">
+    <p class="kinetic-static">WE</p>
+    <ul class="kinetic-list">
+      <li style="--i: 0">track liquidity.</li>
+      <li style="--i: 1">map trends.</li>
+      <li style="--i: 2">filter noise.</li>
+      <li style="--i: 3">spot whales.</li>
+      <li style="--i: 4">decode bias.</li>
+      <li style="--i: 5">quantify fear.</li>
+      <li style="--i: 6">signal alpha.</li>
+      <li style="--i: 7">verify volume.</li>
+      <li style="--i: 8">predict flow.</li>
+      <li style="--i: 9">secure edge.</li>
+      <li style="--i: 10">master markets.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="flip-grid-section">
+    <h2> </h2>
+    <div class="board" id="market-board"></div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+
+    gsap.registerPlugin(ScrollTrigger, CustomEase);
+    const lenis = new Lenis();
+    gsap.ticker.add(t => lenis.raf(t * 1000));
+
+    const gCanvas=document.getElementById("canvas-globe"), gCtx=gCanvas.getContext("2d");
+    let gWidth, gHeight, gTime=0;
+    const gParticles=[], gRadius=Math.min(innerWidth,innerHeight)*.42;
+    const ease=t=>t*t*(3-2*t);
+    function resizeG(){ gWidth=gCanvas.width=innerWidth; gHeight=gCanvas.height=innerHeight; }
+    resizeG(); addEventListener("resize",resizeG);
+    for(let i=0;i<1400;i++){
+        const u=Math.random(),v=Math.random(), theta=2*Math.PI*u, phi=Math.acos(2*v-1);
+        gParticles.push({
+            angle:Math.random()*Math.PI*2, orbitR:520+Math.random()*260, speed:Math.random()*.005+.002,
+            tx:gRadius*Math.sin(phi)*Math.cos(theta), ty:gRadius*Math.cos(phi), tz:gRadius*Math.sin(phi)*Math.sin(theta),
+            color:Math.random()>.5?"#22c55e":"#ef4444"
+        });
+    }
+    function drawGraphLine(offset,color,alpha){
+        gCtx.beginPath();
+        for(let i=0;i<=120;i++){
+            const a=i/120*Math.PI*2, wave=Math.sin(a*3+gTime+offset)*18;
+            let x=(gRadius+wave)*Math.cos(a), y=Math.sin(a*2+offset)*24, z=(gRadius+wave)*Math.sin(a);
+            const ry=gTime*.3,rx=Math.PI/6;
+            let y1=y*Math.cos(rx)-z*Math.sin(rx), z1=y*Math.sin(rx)+z*Math.cos(rx), x2=x*Math.cos(ry)-z1*Math.sin(ry), z2=x*Math.sin(ry)+z1*Math.cos(ry);
+            const s=900/(900+z2), px=gWidth*.72+x2*s, py=gHeight*.55+y1*s;
+            i?gCtx.lineTo(px,py):gCtx.moveTo(px,py);
+        }
+        gCtx.strokeStyle=color; gCtx.globalAlpha=alpha; gCtx.lineWidth=1.2; gCtx.stroke(); gCtx.globalAlpha=1;
+    }
+    function animateG(){
+        gCtx.clearRect(0,0,gWidth,gHeight); gTime+=.015;
+        const morph=ease(Math.max(0,Math.min(1,(gTime-2)/3))), linesAlpha=Math.max(0,Math.min(1,(gTime-4.5)/1.2));
+        gParticles.forEach(p=>{
+            p.angle+=p.speed;
+            const ox=Math.cos(p.angle)*p.orbitR, oy=Math.sin(p.angle*.9)*p.orbitR*.5, oz=Math.sin(p.angle)*300;
+            const x=ox+(p.tx-ox)*morph, y=oy+(p.ty-oy)*morph, z=oz+(p.tz-oz)*morph, ry=gTime*.35,rx=Math.PI/6;
+            let y1=y*Math.cos(rx)-z*Math.sin(rx), z1=y*Math.sin(rx)+z*Math.cos(rx), x2=x*Math.cos(ry)-z1*Math.sin(ry), z2=x*Math.sin(ry)+z1*Math.cos(ry);
+            const s=900/(900+z2);
+            gCtx.fillStyle=p.color=="#22c55e"?`rgba(34,197,94,${s})`:`rgba(239,68,68,${s})`;
+            gCtx.beginPath(); gCtx.arc(gWidth*.72+x2*s,gHeight*.55+y1*s,2.2*s,0,Math.PI*2); gCtx.fill();
+        });
+        if(linesAlpha){ drawGraphLine(0,"rgba(34,197,94,.8)",linesAlpha); drawGraphLine(2.4,"rgba(239,68,68,.8)",linesAlpha); }
+        requestAnimationFrame(animateG);
+    }
+    animateG();
+
+    /* --- SECTION 2: SMOOTH EXPANSION --- */
+    gsap.to(".img-box", {
+        width: 280, ease: "power2.inOut",
+        scrollTrigger: { trigger: ".scroll-section", start: "top center", end: "bottom center", scrub: 1.2 }
+    });
+
+    /* --- SECTION 3: TRIANGLES --- */
+    const outC=document.querySelector(".outline-layer"), fillC=document.querySelector(".fill-layer");
+    const oCtx=outC.getContext("2d"), fCtx=fillC.getContext("2d"), triangles=[], tSize=150;
+    function initT(){
+        outC.width=fillC.width=innerWidth; outC.height=fillC.height=innerHeight;
+        const c=Math.ceil(innerWidth/(tSize*.5))+4, r=Math.ceil(innerHeight/(tSize*.5));
+        triangles.length=0; for(let i=0;i<r;i++)for(let j=0;j<c;j++)triangles.push({r:i,c:j,s:0});
+    }
+    initT(); addEventListener("resize",initT);
+    function drawTri(ctx,x,y,s,flip,fill,glow=0){
+        const h=tSize/2; ctx.save(); ctx.translate(x,y); ctx.scale(s,s);
+        if(fill&&glow){ctx.shadowColor=flip?"rgba(239,68,68,0.6)":"rgba(34,197,94,0.6)";ctx.shadowBlur=glow*1.5}
+        ctx.beginPath();
+        if(!flip){ctx.moveTo(0,-h);ctx.lineTo(h,h);ctx.lineTo(-h,h)}else{ctx.moveTo(0,h);ctx.lineTo(h,-h);ctx.lineTo(-h,-h)}
+        ctx.closePath(); fill?(ctx.fillStyle=flip?"#ef4444":"#22c55e",ctx.fill()):(ctx.strokeStyle="rgba(255,255,255,.08)",ctx.stroke());
+        ctx.restore();
+    }
+    ScrollTrigger.create({
+        trigger:".sticky-wrap", start:"top top", end:"+=400%", pin:true,
+        onUpdate:self=>{
+            oCtx.clearRect(0,0,innerWidth,innerHeight); fCtx.clearRect(0,0,innerWidth,innerHeight);
+            const move=Math.min(self.progress/.65,1); gsap.set(".cards",{x:-move*innerWidth*1.8});
+            const fillP=self.progress<.6?0:(self.progress-.6)/.4, cx=innerWidth/2, cy=innerHeight/2;
+            triangles.forEach(t=>{
+                const x=t.c*(tSize*.5)+tSize/2, y=t.r*tSize+tSize/2, flip=(t.r+t.c)%2!==0;
+                drawTri(oCtx,x,y,1,flip,false);
+                const dist=Math.hypot(x-cx,y-cy), target=dist<(fillP*innerWidth*.9)?1:0;
+                t.s+=(target-t.s)*.12;
+                if(t.s>.02){
+                    const pulse=1+Math.sin(dist*.02+self.progress*10)*.05;
+                    drawTri(fCtx,x,y,t.s*pulse,flip,true,25*t.s);
+                }
+            });
+        }
+    });
+
+    const eCanvas = document.getElementById("eraser-canvas"), eCtx = eCanvas.getContext("2d");
+    function resizeEraser() { eCanvas.width = window.innerWidth; eCanvas.height = window.innerHeight; eCtx.fillStyle = "black"; eCtx.fillRect(0, 0, eCanvas.width, eCanvas.height); }
+    resizeEraser(); window.addEventListener("resize", resizeEraser);
+    ScrollTrigger.create({
+        trigger: ".outro-wrapper", start: "top bottom", end: "bottom bottom", scrub: true,
+        onUpdate: (self) => {
+            eCtx.globalCompositeOperation = "source-over"; eCtx.fillStyle = "black"; eCtx.fillRect(0, 0, eCanvas.width, eCanvas.height);
+            eCtx.globalCompositeOperation = "destination-out"; eCtx.beginPath();
+            eCtx.arc(eCanvas.width/2, eCanvas.height/2, self.progress * Math.max(eCanvas.width, eCanvas.height) * 1.2, 0, Math.PI * 2);
+            eCtx.fill();
+        }
+    });
+
+    /* --- SECTION 5: SLIDER --- */
+    CustomEase.create("stockEase", "0.83, 0, 0.17, 1");
+    function initStockCards() { gsap.to(".noir-card", { y: (i) => -15 + 15 * i + "%", z: (i) => 15 * i, opacity: 1, duration: 0.8, ease: "stockEase", stagger: -0.1 }); }
+    initStockCards();
+    setInterval(() => {
+        const slider = document.querySelector(".noir-slider"), cards = Array.from(slider.querySelectorAll(".noir-card")), last = cards.pop();
+        gsap.to(last, { y: "+=150%", duration: 0.8, ease: "stockEase", onComplete: () => { slider.prepend(last); initStockCards(); }});
+    }, 2500);
+
+    /* --- SECTION 6: FLIP TILES GRID --- */
+    const T_ROWS = 6, T_COLS = 8, marketBoard = document.getElementById("market-board");
+    for (let i = 0; i < T_ROWS; i++) {
+        const row = document.createElement("div"); row.className = "row";
+        for (let j = 0; j < T_COLS; j++) {
+            const tile = document.createElement("div"); tile.className = "tile";
+            tile.innerHTML = `<div class="tile-face tile-front">BULL</div><div class="tile-face tile-back">BEAR</div>`;
+            tile.addEventListener("mouseenter", () => gsap.to(tile, { rotateX: "+=180", duration: 0.6, ease: "power2.out" }));
+            row.appendChild(tile);
+        }
+        marketBoard.appendChild(row);
+    }
+});
+/* --- SECTION 7: KINETIC SCROLL FALLBACK --- */
+gsap.utils.toArray(".kinetic-list li").forEach((li) => {
+  gsap.to(li, {
+    opacity: 1,
+    filter: "blur(0px)",
+    duration: 0.5,
+    scrollTrigger: {
+      trigger: li,
+      start: "top 60%", // Jab word center ke paas aaye
+      end: "top 40%",
+      scrub: true,
+      toggleActions: "play reverse play reverse"
+    }
+  });
+});
+
+</script>
+</body>
+</html>
