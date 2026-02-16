@@ -120,7 +120,7 @@ display:flex;justify-content:space-around;align-items:center;z-index:30
 .section-heading p{ margin-top:10px; font-size:1rem; color:#a1a1aa; }
 .features-bg-title{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:18vw; font-weight:900; letter-spacing:12px; color:rgba(255,255,255,0.04); z-index:1; pointer-events:none; text-transform:uppercase; }
 
-/* SECTION 6: FLIP GRID (NEW) */
+/* SECTION 6: FLIP GRI */
 .flip-grid-section { position: relative; width: 100vw; height: 100vh; background: #000; padding: 100px 20px 20px; display: flex; flex-direction: column; }
 .flip-grid-section h2 { text-align: center; font-size: 3rem; margin-bottom: 20px; color: #4ade80; text-transform: uppercase; font-weight: 900; }
 .board { flex: 1; display: flex; flex-direction: column; gap: 0.5em; perspective: 1000px; }
@@ -238,6 +238,61 @@ display:flex;justify-content:space-around;align-items:center;z-index:30
     color: rgba(255, 255, 255, 0.4);
     letter-spacing: 0.2px;
 }
+.nav-btn-glow {
+    text-decoration: none;
+    color: #000;
+    /* The exact minty green from your image */
+    background: #63e695; 
+    padding: 12px 32px;
+    /* Pill shape */
+    border-radius: 50px; 
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    border: none;
+    cursor: pointer;
+    /* The "Glowy Glowy" layer */
+    box-shadow: 
+        0 0 15px rgba(99, 230, 149, 0.4), 
+        0 0 30px rgba(99, 230, 149, 0.2),
+        0 0 45px rgba(99, 230, 149, 0.1);
+    animation: glow-pulse 3s infinite ease-in-out;
+}
+
+.nav-btn-glow:hover {
+    transform: scale(1.05);
+    background: #75ffab;
+    /* Intense glow on hover */
+    box-shadow: 
+        0 0 20px rgba(99, 230, 149, 0.6), 
+        0 0 40px rgba(99, 230, 149, 0.4),
+        0 0 60px rgba(99, 230, 149, 0.2);
+}
+
+/* Breathing animation for the aura */
+@keyframes glow-pulse {
+    0%, 100% {
+        box-shadow: 
+            0 0 15px rgba(99, 230, 149, 0.4), 
+            0 0 30px rgba(99, 230, 149, 0.2);
+    }
+    50% {
+        box-shadow: 
+            0 0 25px rgba(99, 230, 149, 0.7), 
+            0 0 50px rgba(99, 230, 149, 0.3),
+            0 0 70px rgba(99, 230, 149, 0.1);
+    }
+}
+
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
 </style>
 </head>
 
@@ -246,7 +301,10 @@ display:flex;justify-content:space-around;align-items:center;z-index:30
 <div class="fixed-bg"></div>
 
 <header class="nav-wrap">
-    <div class="nav-bar"><div class="logo">EquiSense</div></div>
+    <div class="nav-bar">
+        <div class="logo">StockSense</div>
+        <a href="#" class="nav-btn-glow">Analyze a Stock Now</a>
+    </div>
 </header>
 
 <section class="hero">
@@ -330,7 +388,7 @@ display:flex;justify-content:space-around;align-items:center;z-index:30
 <section class="final-cta">
     <div class="cta-content">
         <p class="cta-subtext">Ready to See What the Market Thinks?</p>
-        <button class="cta-button">Analyze a Stock Now</button>
+        <button class="cta-button">Get Started →</button>
         <p class="cta-disclaimer">For informational purposes only. Not financial advice.</p>
         <p class="cta-disclaimer">Made by Harshprabha and Hanya with ❤️</p>
     </div>
